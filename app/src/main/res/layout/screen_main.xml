@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:padding="16dp"
+              android:orientation="vertical">
+
+    <EditText
+            android:id="@+id/editURI"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="URI"/>
+
+    <EditText
+            android:id="@+id/editAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="address"/>
+
+    <EditText
+            android:id="@+id/editChainId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="chainId"/>
+
+    <TextView
+            android:id="@+id/screen_main_status"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_height="wrap_content"
+            android:text="Disconnected"/>
+
+    <Button
+            android:id="@+id/screen_main_connect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:text="Connect"/>
+</LinearLayout>
