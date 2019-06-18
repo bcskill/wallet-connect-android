@@ -8,14 +8,11 @@ Using Gradle:
 ```groovy
 repositories {
 	...
-	maven {
-            url "https://jitpack.io"
-            credentials { username jp_435jgqk62a96mhnmguc7fj3vfp }
-        }
+	maven {url "https://jitpack.io"}
 }
 
 dependencies {
-  implementation 'com.github.AxelUA95.wallet-connect-android:wallet-connect:0.9.0'
+	implementation 'com.github.paytomat:wallet-connect-android:0.9.2'
 }
 ```
 
