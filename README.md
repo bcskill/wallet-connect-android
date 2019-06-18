@@ -83,8 +83,8 @@ override fun onBnbSign(id: Long, order: WCBinanceOrder<*>) {
 	val signature: ByteArray = Signature.signMessage(orderJson.toByteArray(), privateKey)
 	//Form order signature message
 	val signed = WCBinanceOrderSignature(Hex.toHexString(signature), Hex.toHexString(privateKey.publicKey.bytes))
-    //Send message
-    interactor.approveBnbOrder(id, signed)
+    	//Send message
+   	interactor.approveBnbOrder(id, signed)
 }
 ```
 
