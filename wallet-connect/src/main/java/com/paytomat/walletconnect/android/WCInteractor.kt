@@ -18,6 +18,10 @@ import java.util.concurrent.TimeUnit
 class WCInteractor(private val session: WCSession, private val clientMeta: WCPeerMeta, private val clientId: String) :
     WebSocketListener() {
 
+    companion object {
+        var DEBUG: Boolean = false
+    }
+
     private val gson = GsonBuilder()
         .registerTypeAdapter(WCBinanceOrder::class.java, WCBinanceOrderAdapter())
         .setLenient()
@@ -46,9 +50,10 @@ class WCInteractor(private val session: WCSession, private val clientMeta: WCPee
      */
     fun connect() {
         if (currentStatus == Status.CONNECTED || currentStatus == Status.CONNECTING) return
-        Log.d("<<SS", session.toString())
+        if (DEBUG) Log.d("<<SS", session.toString())
         currentStatus = Status.CONNECTING
-        val client: OkHttpClient = OkHttpClient.Builder().pingInterval(15, TimeUnit.SECONDS).retryOnConnectionFailure(true).build()
+        val client: OkHttpClient =
+            OkHttpClient.Builder().pingInterval(15, TimeUnit.SECONDS).retryOnConnectionFailure(true).build()
         socket = client.newWebSocket(Request.Builder().url(session.bridge.toString()).build(), this)
     }
 
@@ -112,19 +117,19 @@ class WCInteractor(private val session: WCSession, private val clientMeta: WCPee
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
         currentStatus = Status.CONNECTED
-        Log.d("<<SS", response.toString())
+        if (DEBUG) Log.d("<<SS", response.toString())
         subscribe(session.topic)
         subscribe(clientId)
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        Log.d("<<SS", bytes.hex())
+        if (DEBUG) Log.d("<<SS", bytes.hex())
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.d("<<SS", text)
+        if (DEBUG) Log.d("<<SS", text)
         val message: WCSocketMessage<WCEncryptionPayload> = WCEncryptionPayload.messageFromJson(text, gson) ?: return
         guard {
             val payload: WCEncryptionPayload = message.getPayloadParsed(gson, WCEncryptionPayload::class.java) ?: return
@@ -140,21 +145,21 @@ class WCInteractor(private val session: WCSession, private val clientMeta: WCPee
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         currentStatus = Status.FAILED_CONNECT
-        Log.d("<<SS", response?.toString(), t)
+        if (DEBUG) Log.d("<<SS", response?.toString(), t)
         socket = null
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
         currentStatus = Status.DISCONNECTED
-        Log.d("<<SS", "Closing code = $code, reason = $reason")
+        if (DEBUG) Log.d("<<SS", "Closing code = $code, reason = $reason")
         socket = null
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
         currentStatus = Status.DISCONNECTED
-        Log.d("<<SS", "Closing code = $code, reason = $reason")
+        if (DEBUG) Log.d("<<SS", "Closing code = $code, reason = $reason")
         socket = null
     }
     //SOCKET CALLBACKS END
@@ -166,7 +171,7 @@ class WCInteractor(private val session: WCSession, private val clientMeta: WCPee
     private fun subscribe(topic: String) {
         val message: WCSocketMessage<String> = WCSocketMessage(topic, WCSocketMessage.MessageType.sub, "")
         val data: String = gson.toJson(message)
-        Log.d("<<SS", data)
+        if (DEBUG) Log.d("<<SS", data)
         socket?.send(data)
     }
 
@@ -175,17 +180,17 @@ class WCInteractor(private val session: WCSession, private val clientMeta: WCPee
      * @param data payload in byte form
      */
     private fun encryptAndSend(data: String) {
-        Log.d("<<SS", data)
+        if (DEBUG) Log.d("<<SS", data)
         val payload: WCEncryptionPayload = WCEncryptor.encrypt(data.toByteArray(), session.key)
         val message: WCSocketMessage<WCEncryptionPayload> =
             WCSocketMessage(peerId ?: session.topic, WCSocketMessage.MessageType.pub, gson.toJson(payload))
         val json: String = gson.toJson(message)
-        Log.d("<<SS", json)
+        if (DEBUG) Log.d("<<SS", json)
         socket?.send(json)
     }
 
     private fun handleEvent(event: WCEvent, topic: String, decrypted: String) {
-        Log.d("<<SS", "Event $event, topic $topic, decrypted $decrypted")
+        if (DEBUG) Log.d("<<SS", "Event $event, topic $topic, decrypted $decrypted")
         when (event) {
             WCEvent.SessionRequest -> {
                 val typeToken: Type = object : TypeToken<JSONRPCRequest<List<WCSessionRequestParam>>>() {}.type
